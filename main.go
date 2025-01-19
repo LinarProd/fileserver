@@ -130,34 +130,43 @@ func mainPageHandler(w http.ResponseWriter, r *http.Request) {
 		password := r.FormValue("password")
 
 		if validateCredentials(username, password) {
+			// Установка cookie
 			http.SetCookie(w, &http.Cookie{
 				Name:  "auth",
 				Value: username + ":" + password,
 				Path:  "/",
 			})
-		} else {
-			http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+
+			// Перенаправление на главную страницу
+			http.Redirect(w, r, "/", http.StatusFound)
 			return
 		}
+
+		// Ошибка авторизации
+		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+		return
 	}
 
+	// Проверка авторизации через cookie
 	cookie, err := r.Cookie("auth")
 	var isAuthorized bool
 	if err == nil {
 		authParts := strings.Split(cookie.Value, ":")
-		if len(authParts) != 2 {
-			isAuthorized = false
-		} else {
+		if len(authParts) == 2 {
 			isAuthorized = validateCredentials(authParts[0], authParts[1])
 		}
 	}
 
-	files, _ := os.ReadDir(config.FileDir)
-	fileNames := []string{}
-	for _, file := range files {
-		fileNames = append(fileNames, file.Name())
+	// Список файлов для авторизованных пользователей
+	var fileNames []string
+	if isAuthorized {
+		files, _ := os.ReadDir(config.FileDir)
+		for _, file := range files {
+			fileNames = append(fileNames, file.Name())
+		}
 	}
 
+	// Рендеринг страницы
 	data := struct {
 		IsAuthorized bool
 		Files        []string

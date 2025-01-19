@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>File Management</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    {{if .IsAuthorized}}
+    <h1>Welcome to File Management</h1>
+    <form method="post" action="/upload" enctype="multipart/form-data">
+        <label for="file">Upload File:</label>
+        <input type="file" id="file" name="file" required>
+        <button type="submit">Upload</button>
+    </form>
+    <h2>Files:</h2>
+    <ul>
+        {{range .Files}}
+        <li>
+            <a href="/download?filename={{.}}" download>{{.}}</a>
+            <form method="post" action="/delete" style="display:inline;">
+                <input type="hidden" name="filename" value="{{.}}">
+                <button type="submit">Delete</button>
+            </form>
+        </li>
+        {{end}}
+    </ul>
+    <form method="post" action="/logout" style="margin-top: 20px;">
+        <button type="submit">Logout</button>
+    </form>
+{{else}}
+    <h1>Login</h1>
+    <form method="post" action="/">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required>
+        <br>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+        <br>
+        <button type="submit">Login</button>
+    </form>
+{{end}}
+</body>
+</html>

@@ -208,6 +208,22 @@ func fileListHandler(w http.ResponseWriter, r *http.Request) {
 // File delete handler
 func deleteHandler(w http.ResponseWriter, r *http.Request) {
 	// Logic for deleting files
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	fileName := r.FormValue("filename")
+	filePath := filepath.Join(config.FileDir, fileName)
+
+	// Попытка удалить файл
+	if err := os.Remove(filePath); err != nil {
+		http.Error(w, "Failed to delete file", http.StatusInternalServerError)
+		return
+	}
+
+	// Перенаправление на главную страницу после успешного удаления
+	http.Redirect(w, r, "/", http.StatusFound)
 }
 
 // File download handler

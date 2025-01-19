@@ -187,5 +187,3 @@ This is a mini website written in go, thanks to which you can transfer files usi
 - Redirects the user to the login page.
 
 ---
-
-Если потребуется дополнение или уточнение, дайте знать! 😊

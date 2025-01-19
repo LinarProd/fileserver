@@ -14,6 +14,7 @@ import (
 )
 
 type Config struct {
+	ServerHost string `json:"server_host"`
 	ServerPort string `json:"server_port"`
 	FileDir    string `json:"file_dir"`
 	UserFile   string `json:"user_file"`
@@ -63,11 +64,13 @@ func main() {
 	http.HandleFunc("/files", authMiddleware(fileListHandler))
 	http.HandleFunc("/delete", authMiddleware(deleteHandler))
 	http.HandleFunc("/download", authMiddleware(downloadHandler))
-	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	http.HandleFunc("/logout", logoutHandler)
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
+
 	// Start server
-	log.Printf("Starting server on %s", config.ServerPort)
-	if err := http.ListenAndServe(":"+config.ServerPort, nil); err != nil {
+	address := fmt.Sprintf("%s:%s", config.ServerHost, config.ServerPort)
+	log.Printf("Starting server on %s", address)
+	if err := http.ListenAndServe(address, nil); err != nil {
 		log.Fatalf("Server failed: %v", err)
 	}
 }

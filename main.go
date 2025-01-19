@@ -61,7 +61,7 @@ func main() {
 	// HTTP routes
 	http.HandleFunc("/", mainPageHandler)
 	http.HandleFunc("/upload", authMiddleware(uploadHandler))
-	http.HandleFunc("/files", authMiddleware(fileListHandler))
+	http.HandleFunc("/files", authMiddleware(filesHandler))
 	http.HandleFunc("/delete", authMiddleware(deleteHandler))
 	http.HandleFunc("/download", authMiddleware(downloadHandler))
 	http.HandleFunc("/logout", logoutHandler)
@@ -212,6 +212,27 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 // File listing handler
 func fileListHandler(w http.ResponseWriter, r *http.Request) {
 	// Logic for listing files
+}
+
+func filesHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	files, err := os.ReadDir(config.FileDir)
+	if err != nil {
+		http.Error(w, "Failed to list files", http.StatusInternalServerError)
+		return
+	}
+
+	fileNames := []string{}
+	for _, file := range files {
+		fileNames = append(fileNames, file.Name())
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(fileNames)
 }
 
 // File delete handler
